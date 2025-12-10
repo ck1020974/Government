@@ -996,6 +996,14 @@
             }).join('');
 
             $('#question-panel-title').innerText = categoryNames[category] || category.toUpperCase();
+
+            // Mobile UX: Scroll to questions if in column layout (mobile)
+            if (window.innerWidth < 768) {
+                // Scroll the modal container, not the window, because the modal has overflow-y-auto
+                const modalParams = document.getElementById('question-panel-title').getBoundingClientRect();
+                // Simple scrollIntoView on the title of the section
+                document.getElementById('question-panel-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         window.executeInvestigation = function (cardId) {
