@@ -1,0 +1,29 @@
+{
+    "a_central": { "type": "A", "text": "是否中央？", "criteria": { "property": "branch", "equals": "central" } },
+    "a_local": { "type": "A", "text": "是否地方？", "criteria": { "property": "branch", "equals": "local" } },
+    "a_executive": { "type": "A", "text": "是否行政？", "criteria": { "property": "type", "equals": "executive" } },
+    "a_legislative": { "type": "A", "text": "是否立法？", "criteria": { "property": "type", "equals": "legislative" } },
+    "a_elected": { "type": "A", "text": "是否為民選？", "criteria": { "property": "isElected", "equals":  true" } },
+
+    "b_age_23": { "type": "B", "text": "年齡卡：是否具 23 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 23 } },
+    "b_age_26": { "type": "B", "text": "年齡卡：是否具 26 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 26 } },
+    "b_age_30": { "type": "B", "text": "年齡卡：是否具 30 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 30 } },
+    "b_age_40": { "type": "B", "text": "年齡卡：是否具 40 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 40 } },
+
+    "b_power_exec": { "type": "B", "text": "權力卡：是否行政？", "criteria": { "property": "type", "equals": "executive" } },
+    "b_power_legis": { "type": "B", "text": "權力卡：是否立法？", "criteria": { "property": "type", "equals": "legislative" } },
+    "b_power_judic": { "type": "B", "text": "權力卡：是否司法？", "criteria": { "property": "type", "equals": "judicial" } },
+    "b_power_exam": { "type": "B", "text": "權力卡：是否考試？", "criteria": { "property": "type", "equals": "examination" } },
+    "b_power_control": { "type": "B", "text": "權力卡：是否監察？", "criteria": { "property": "type", "equals": "control" } },
+
+    "b_level_central": { "type": "B", "text": "層級卡：是否中央？", "criteria": { "property": "level", "equals": "central" } },
+    "b_level_special": { "type": "B", "text": "層級卡：是否直轄市？", "criteria": { "property": "level", "equals": "special_municipality" } },
+    "b_level_county": { "type": "B", "text": "層級卡：是否縣（市）？", "criteria": { "property": "level", "equals": "county_city" } },
+    "b_level_township": { "type": "B", "text": "層級卡：是否鄉鎮市區？", "criteria": { "property": "level", "equals": "township" } },
+    "b_level_village": { "type": "B", "text": "層級卡：是否村里？", "criteria": { "property": "level", "equals": "village" } },
+
+    "b_origin_elected": { "type": "B", "text": "產生卡：是否民選？", "criteria": { "property": "origin", "equals": "elected" } },
+    "b_origin_prez_nom": { "type": "B", "text": "產生卡：是否總統提名？", "criteria": { "property": "origin", "equals": "president_nominated" } },
+    "b_origin_prez_app": { "type": "B", "text": "產生卡：是否總統任命？", "criteria": { "property": "origin", "equals": "president_appointed" } },
+    "b_origin_mayor_app": { "type": "B", "text": "產生卡：是否市長任命？", "criteria": { "property": "origin", "equals": "mayor_appointed" } }
+}

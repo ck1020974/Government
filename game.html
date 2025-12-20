@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政壇鬼抓人</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8244598033750397"
+        crossorigin="anonymous"></script>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+
+    <div id="start-screen"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 text-center p-4">
+        <h1 class="game-title text-5xl md:text-7xl font-bold text-white">政壇鬼抓人</h1>
+        <p class="text-2xl text-gray-400 mt-4 mb-10">「在權力迷霧中，看破所有對象！」</p>
+        <button id="start-game-btn"
+            class="py-3 px-8 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold text-xl rounded-lg transition-colors shadow-lg animate-pulse">
+            開始推理
+        </button>
+    </div>
+
+    <div id="game-container" class="max-w-7xl mx-auto opacity-0 transition-opacity duration-1000 hidden">
+
+        <div id="game-stats"
+            class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-20 my-6 p-4 bg-gray-800 rounded-lg shadow-md relative">
+            <div>
+                <span class="text-sm text-gray-400 block">情報點數</span>
+                <span id="intelligence-points" class="text-3xl font-bold text-yellow-400">100</span>
+            </div>
+            <div>
+                <span class="text-sm text-gray-400 block">遊戲時間</span>
+                <span id="game-timer" class="text-3xl font-bold text-white">00:00</span>
+            </div>
+            <div>
+                <span class="text-sm text-gray-400 block">已揭露身分</span>
+                <span id="solved-count" class="text-3xl font-bold text-green-400">0 / 5</span>
+            </div>
+            <div>
+                <span class="text-sm text-gray-400 block">生命值</span>
+                <div id="health-bar" class="flex gap-1 text-3xl">
+                </div>
+            </div>
+            <button id="draw-b-card-btn"
+                class="absolute top-4 right-4 py-2 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-md">
+                尋找線索
+            </button>
+        </div>
+
+        <div id="dossier-container" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        </div>
+    </div>
+
+    <div id="a-card-select-screen" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-gray-900 hidden">
+        <div class="w-full max-w-6xl text-center">
+            <h2 class="game-title text-3xl font-bold text-white mb-6">第一步：你可以問所有人一個問題</h2>
+            <p class="text-gray-300 mb-8">五名對象已就位。請選擇 1 張萬能指令。</p>
+            <div class="flex justify-center gap-4 md:gap-8 mb-8">
+                <img src="https://api.multiavatar.com/Dossier1.svg?v=1" alt="人物 1"
+                    class="w-16 h-24 md:w-24 md:h-36 p-2 bg-gray-700 rounded-lg border-2 border-gray-600 opacity-80">
+                <img src="https://api.multiavatar.com/Dossier2.svg?v=1" alt="人物 2"
+                    class="w-16 h-24 md:w-24 md:h-36 p-2 bg-gray-700 rounded-lg border-2 border-gray-600 opacity-80">
+                <img src="https://api.multiavatar.com/Dossier3.svg?v=1" alt="人物 3"
+                    class="w-16 h-24 md:w-24 md:h-36 p-2 bg-gray-700 rounded-lg border-2 border-gray-600 opacity-80">
+                <img src="https://api.multiavatar.com/Dossier4.svg?v=1" alt="人物 4"
+                    class="w-16 h-24 md:w-24 md:h-36 p-2 bg-gray-700 rounded-lg border-2 border-gray-600 opacity-80">
+                <img src="https://api.multiavatar.com/Dossier5.svg?v=1" alt="人物 5"
+                    class="w-16 h-24 md:w-24 md:h-36 p-2 bg-gray-700 rounded-lg border-2 border-gray-600 opacity-80">
+            </div>
+
+            <div id="a-card-options"
+                class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 max-w-5xl mx-auto">
+            </div>
+            <button id="confirm-a-card-btn"
+                class="w-full max-w-sm mx-auto py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors shadow-md"
+                disabled>
+                確認選擇 (0 / 1)
+            </button>
+        </div>
+    </div>
+
+    <div id="b-card-target-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-lg rounded-lg p-6 shadow-xl">
+            <h2 class="game-title text-3xl font-bold text-white mb-6">B 卡：選擇目標</h2>
+            <p class="text-gray-300 mb-6">您要對哪一個對象使用細節卡？</p>
+            <div id="b-card-target-options" class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-6">
+            </div>
+            <button id="cancel-b-card-target-btn"
+                class="w-full py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors">
+                取消
+            </button>
+        </div>
+    </div>
+
+    <div id="b-card-draw-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-2xl rounded-lg p-6 shadow-xl relative">
+            <button id="cancel-b-card-draw-btn"
+                class="absolute top-4 right-4 py-1 px-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm">
+                &times; 返回
+            </button>
+            <h2 class="game-title text-3xl font-bold text-white mb-6">B 卡：抽 6 選 1</h2>
+            <p class="text-gray-300 mb-6">選擇 1 張細節卡來詢問 <span id="b-card-target-name"
+                    class="font-bold text-yellow-400"></span>：</p>
+            <div id="b-card-draw-options" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            </div>
+            <p class="text-sm text-center text-gray-400">選擇一張卡牌以繼續。</p>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-lg rounded-lg p-8 shadow-xl text-center">
+            <h2 id="game-over-title" class="game-title text-4xl font-bold text-white mb-4"></h2>
+            <p id="game-over-message" class="text-lg text-gray-300 mb-6"></p>
+            <div id="game-over-answers" class="text-left space-y-2 mb-8">
+            </div>
+            <button id="restart-game-btn"
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-md">
+                重新開始一局
+            </button>
+        </div>
+    </div>
+
+    <div id="message-modal"
+        class="fixed top-8 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white py-3 px-6 rounded-lg shadow-lg opacity-0 transition-all duration-300 -translate-y-10">
+        <span id="message-text"></span>
+    </div>
+
+    <div id="guess-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-lg p-6 shadow-xl">
+            <h2 id="guess-modal-title" class="game-title text-3xl font-bold text-white mb-6">確認身分</h2>
+            <p class="text-gray-300 mb-4">請從列表中選擇您認為的正確身分：</p>
+            <select id="guess-modal-select"
+                class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white mb-6">
+            </select>
+            <div class="flex gap-4">
+                <button id="cancel-guess-btn"
+                    class="w-1/2 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors">
+                    取消
+                </button>
+                <button id="submit-guess-btn"
+                    class="w-1/2 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+                    送出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // ========== 遊戲配置常數 ==========
+        const GAME_CONFIG = {
+            TOTAL_DOSSIERS: 5,
+            INITIAL_INTELLIGENCE_POINTS: 100,
+            INITIAL_HEALTH: 5,
+            B_CARD_DRAW_COUNT: 6,
+            DOSSIER_COUNT: 5,
+            TIMER_INTERVAL: 1000,
+            MESSAGE_DURATION: 2000
+        };
+
+        const GAME_PHASES = {
+            A_CARD_SELECT: 'a_card_select',
+            MAIN_TURN: 'main_turn',
+            B_CARD_TARGET: 'b_card_target',
+            B_CARD_SELECT: 'b_card_select',
+            GAME_OVER: 'game_over'
+        };
+
+        // ========== 資料庫變數 ==========
+        let ROLES_DB = {};
+        let CARDS_DB = {};
+        let fallbackNotified = false;
+
+        // UPDATED FALLBACK DATA
+        const rolesFallback = {
+            "president": { "name": "總統", "branch": "central", "type": "executive", "level": "central", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 40, "origin": "elected" },
+            "premier": { "name": "行政院長", "branch": "central", "type": "executive", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_appointed" },
+            "minister": { "name": "○○部長", "branch": "central", "type": "executive", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": false, "ageLimit": null, "origin": "president_appointed" },
+            "auditor_general": { "name": "審計長", "branch": "central", "type": "control", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+            "ly_president": { "name": "立法院院長", "branch": "central", "type": "legislative", "level": "central", "isElected": true, "isDirectlyElected": false, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+            "legislator": { "name": "立法委員", "branch": "central", "type": "legislative", "level": "central", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+            "grand_justice": { "name": "大法官", "branch": "central", "type": "judicial", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+            "jy_president": { "name": "司法院院長", "branch": "central", "type": "judicial", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+            "ey_president": { "name": "考試院院長", "branch": "central", "type": "examination", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+            "special_mayor": { "name": "直轄市市長", "branch": "local", "type": "executive", "level": "special_municipality", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 30, "origin": "elected" },
+            "county_mayor": { "name": "縣市長", "branch": "local", "type": "executive", "level": "county_city", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 30, "origin": "elected" },
+            "township_mayor": { "name": "鄉鎮市長", "branch": "local", "type": "executive", "level": "township", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 26, "origin": "elected" },
+            "indigenous_dist_head": { "name": "直轄市山地原住民區長", "branch": "local", "type": "executive", "level": "indigenous_district", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 26, "origin": "elected" },
+            "village_chief": { "name": "村里長", "branch": "local", "type": "executive", "level": "village", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+            "special_councilor": { "name": "直轄市議員", "branch": "local", "type": "legislative", "level": "special_municipality", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+            "county_councilor": { "name": "縣市議員", "branch": "local", "type": "legislative", "level": "county_city", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+            "township_rep": { "name": "鄉鎮市民代表", "branch": "local", "type": "legislative", "level": "township", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+            "indigenous_dist_rep": { "name": "直轄市山地原住民區民代表", "branch": "local", "type": "legislative", "level": "indigenous_district", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" }
+        };
+
+        // UPDATED FALLBACK DATA
+        const cardsFallback = {
+            "a_central": { "type": "A", "text": "是否中央？", "criteria": { "property": "branch", "equals": "central" } },
+            "a_local": { "type": "A", "text": "是否地方？", "criteria": { "property": "branch", "equals": "local" } },
+            "a_executive": { "type": "A", "text": "是否行政？", "criteria": { "property": "type", "equals": "executive" } },
+            "a_legislative": { "type": "A", "text": "是否立法？", "criteria": { "property": "type", "equals": "legislative" } },
+            "a_elected": { "type": "A", "text": "是否為民選？", "criteria": { "property": "isElected", "equals": true } },
+
+            "b_age_23": { "type": "B", "text": "年齡卡：是否具 23 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 23 } },
+            "b_age_26": { "type": "B", "text": "年齡卡：是否具 26 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 26 } },
+            "b_age_30": { "type": "B", "text": "年齡卡：是否具 30 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 30 } },
+            "b_age_40": { "type": "B", "text": "年齡卡：是否具 40 歲年齡限制？", "criteria": { "property": "ageLimit", "equals": 40 } },
+
+            "b_power_exec": { "type": "B", "text": "權力卡：是否行政？", "criteria": { "property": "type", "equals": "executive" } },
+            "b_power_legis": { "type": "B", "text": "權力卡：是否立法？", "criteria": { "property": "type", "equals": "legislative" } },
+            "b_power_judic": { "type": "B", "text": "權力卡：是否司法？", "criteria": { "property": "type", "equals": "judicial" } },
+            "b_power_exam": { "type": "B", "text": "權力卡：是否考試？", "criteria": { "property": "type", "equals": "examination" } },
+            "b_power_control": { "type": "B", "text": "權力卡：是否監察？", "criteria": { "property": "type", "equals": "control" } },
+
+            "b_level_central": { "type": "B", "text": "層級卡：是否中央？", "criteria": { "property": "level", "equals": "central" } },
+            "b_level_special": { "type": "B", "text": "層級卡：是否直轄市？", "criteria": { "property": "level", "equals": "special_municipality" } },
+            "b_level_county": { "type": "B", "text": "層級卡：是否縣（市）？", "criteria": { "property": "level", "equals": "county_city" } },
+            "b_level_township": { "type": "B", "text": "層級卡：是否鄉鎮市區？", "criteria": { "property": "level", "equals": "township" } },
+            "b_level_village": { "type": "B", "text": "層級卡：是否村里？", "criteria": { "property": "level", "equals": "village" } },
+
+            "b_origin_elected": { "type": "B", "text": "產生卡：是否民選？", "criteria": { "property": "origin", "equals": "elected" } },
+            "b_origin_prez_nom": { "type": "B", "text": "產生卡：是否總統提名？", "criteria": { "property": "origin", "equals": "president_nominated" } },
+            "b_origin_prez_app": { "type": "B", "text": "產生卡：是否總統任命？", "criteria": { "property": "origin", "equals": "president_appointed" } },
+            "b_origin_mayor_app": { "type": "B", "text": "產生卡：是否市長任命？", "criteria": { "property": "origin", "equals": "mayor_appointed" } }
+        };
+
+        async function loadGameData() {
+            try {
+                const [rolesResp, cardsResp] = await Promise.all([
+                    fetch('./roles.json'),
+                    fetch('./cards.json')
+                ]);
+
+                if (!rolesResp.ok || !cardsResp.ok) {
+                    throw new Error('JSON fetch failed');
+                }
+
+                const [rolesData, cardsData] = await Promise.all([
+                    rolesResp.json(),
+                    cardsResp.json()
+                ]);
+
+                return { rolesData, cardsData, isFallback: false };
+            } catch (error) {
+                console.warn('載入外部 JSON 失敗，改用內建資料。', error);
+                return { rolesData: rolesFallback, cardsData: cardsFallback, isFallback: true };
+            }
+        }
+
+        function buildCardDatabase(cardConfigs) {
+            const database = {};
+            for (const [id, config] of Object.entries(cardConfigs)) {
+                database[id] = {
+                    ...config,
+                    test: (role) => evaluateCriteria(role, config.criteria)
+                };
+            }
+            return database;
+        }
+
+        function evaluateCriteria(role, criteria) {
+            if (!criteria || !criteria.property) return false;
+            const value = criteria.property
+                .split('.')
+                .reduce((acc, key) => (acc !== undefined && acc !== null ? acc[key] : undefined), role);
+            return value === criteria.equals;
+        }
+
+        async function prepareGameData() {
+            if (Object.keys(ROLES_DB).length && Object.keys(CARDS_DB).length) {
+                return;
+            }
+            const { rolesData, cardsData, isFallback } = await loadGameData();
+            ROLES_DB = rolesData;
+            CARDS_DB = buildCardDatabase(cardsData);
+            if (isFallback && !fallbackNotified) {
+                fallbackNotified = true;
+                showMessage('建議透過本機伺服器開啟以載入最新資料');
+            }
+        }
+
+        // ========== 資料常數 ==========
+        const MINISTER_NAMES = [
+            '內政部長', '外交部長', '國防部長', '財政部長', '教育部長', '法務部長',
+            '經濟部長', '交通部長', '勞動部長', '農業部長', '衛生福利部長', '環境部長',
+            '文化部長', '數位發展部長', '運動部長'
+        ];
+
+        // 遊戲狀態
+        let gameState = {};
+
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        const elements = {
+            startScreen: $('#start-screen'),
+            startGameBtn: $('#start-game-btn'),
+            gameContainer: $('#game-container'),
+            stats: {
+                points: $('#intelligence-points'),
+                solved: $('#solved-count'),
+                timer: $('#game-timer'),
+                healthBar: $('#health-bar'),
+            },
+            dossierContainer: $('#dossier-container'),
+            playerHand: {
+                drawBCardBtn: $('#draw-b-card-btn'),
+            },
+            modals: {
+                aCardSelect: $('#a-card-select-screen'),
+                bCardTarget: $('#b-card-target-modal'),
+                bCardDraw: $('#b-card-draw-modal'),
+                gameOver: $('#game-over-modal'),
+                message: $('#message-modal'),
+                guess: $('#guess-modal'),
+            },
+            modalContents: {
+                aCardOptions: $('#a-card-options'),
+                confirmACardBtn: $('#confirm-a-card-btn'),
+                bCardTargetOptions: $('#b-card-target-options'),
+                cancelBCardTargetBtn: $('#cancel-b-card-target-btn'),
+                bCardDrawOptions: $('#b-card-draw-options'),
+                bCardTargetName: $('#b-card-target-name'),
+                gameOverTitle: $('#game-over-title'),
+                gameOverMessage: $('#game-over-message'),
+                gameOverAnswers: $('#game-over-answers'),
+                restartGameBtn: $('#restart-game-btn'),
+                messageText: $('#message-text'),
+                guessModalTitle: $('#guess-modal-title'),
+                guessModalSelect: $('#guess-modal-select'),
+                cancelGuessBtn: $('#cancel-guess-btn'),
+                submitGuessBtn: $('#submit-guess-btn'),
+                cancelBCardDrawBtn: $('#cancel-b-card-draw-btn'),
+            }
+        };
+
+        // --- 遊戲核心邏輯 ---
+
+        function initGame() {
+            if (gameState.gameTimerInterval) {
+                clearInterval(gameState.gameTimerInterval);
+            }
+
+            gameState = {
+                rolesInPlay: [],
+                playerACards: [],
+                unselectedACards: [],
+                intelligencePoints: GAME_CONFIG.INITIAL_INTELLIGENCE_POINTS,
+                solvedCount: 0,
+                health: GAME_CONFIG.INITIAL_HEALTH,
+                dossiers: [],
+                notepad: [],
+                gamePhase: GAME_PHASES.A_CARD_SELECT,
+                bCardTargetIndex: null,
+                currentBDeckDraw: [],
+                guessTargetIndex: null,
+                gameTimerInterval: null,
+                secondsElapsed: 0,
+                gameRolesDB: {},
+            };
+
+            const randomMinisterName = MINISTER_NAMES[Math.floor(Math.random() * MINISTER_NAMES.length)];
+            gameState.gameRolesDB = JSON.parse(JSON.stringify(ROLES_DB));
+            if (gameState.gameRolesDB['minister']) {
+                gameState.gameRolesDB['minister'].name = randomMinisterName;
+            }
+
+            const allRoleIds = Object.keys(gameState.gameRolesDB);
+            shuffleArray(allRoleIds);
+            gameState.rolesInPlay = allRoleIds.slice(0, 5).map(id => ({ id, ...gameState.gameRolesDB[id] }));
+
+            const allPossibleRoleIds = new Set(Object.keys(gameState.gameRolesDB));
+            for (let i = 0; i < GAME_CONFIG.DOSSIER_COUNT; i++) {
+                gameState.dossiers.push({
+                    id: i,
+                    isSolved: false,
+                    clues: [],
+                    notes: "",
+                });
+                gameState.notepad.push(new Set(allPossibleRoleIds));
+            }
+
+            renderStats();
+            renderDossiers();
+            renderACardSelection();
+
+            toggleModal(elements.modals.aCardSelect, true);
+        }
+
+        // 渲染 A 卡選擇（優化：使用 DocumentFragment）
+        function renderACardSelection() {
+            const aCardIds = Object.keys(CARDS_DB).filter(id => CARDS_DB[id].type === 'A');
+            const fragment = document.createDocumentFragment();
+            const container = document.createElement('div');
+
+            aCardIds.forEach(id => {
+                const card = CARDS_DB[id];
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card card-a p-3 rounded-md';
+                cardEl.dataset.cardId = id;
+                cardEl.innerHTML = `
+                    <p class="text-xs text-gray-300">萬能卡</p>
+                    <h5 class="font-semibold text-base text-white">${card.text}</h5>
+                `;
+                container.appendChild(cardEl);
+            });
+
+            fragment.appendChild(container);
+            elements.modalContents.aCardOptions.innerHTML = '';
+            elements.modalContents.aCardOptions.appendChild(fragment);
+
+            updateConfirmButton(0);
+        }
+
+        // 更新確認按鈕狀態
+        function updateConfirmButton(selectedCount) {
+            const btn = elements.modalContents.confirmACardBtn;
+            btn.textContent = `確認選擇 (${selectedCount} / 1)`;
+            btn.disabled = selectedCount !== 1;
+        }
+
+        // 處理 A 卡選擇
+        function handleACardSelect(e) {
+            const cardEl = e.target.closest('.card');
+            if (!cardEl) return;
+
+            const cardId = cardEl.dataset.cardId;
+            const isCurrentlySelected = cardEl.classList.contains('card-selected');
+
+            // 清除所有選擇
+            elements.modalContents.aCardOptions.querySelectorAll('.card.card-selected').forEach(el => {
+                el.classList.remove('card-selected');
+            });
+
+            // 切換選擇狀態
+            if (isCurrentlySelected) {
+                gameState.playerACards = [];
+            } else {
+                cardEl.classList.add('card-selected');
+                gameState.playerACards = [cardId];
+            }
+
+            updateConfirmButton(gameState.playerACards.length);
+        }
+
+        // 確認 A 卡選擇
+        function confirmACardSelection() {
+            if (gameState.playerACards.length !== 1) return;
+
+            const cardId = gameState.playerACards[0];
+            useACard(cardId);
+
+            const allACardIds = Object.keys(CARDS_DB).filter(id => CARDS_DB[id].type === 'A');
+            gameState.unselectedACards = allACardIds.filter(id => id !== cardId);
+
+            gameState.gamePhase = GAME_PHASES.MAIN_TURN;
+            toggleModal(elements.modals.aCardSelect, false);
+            elements.gameContainer.classList.remove('hidden');
+            elements.gameContainer.style.opacity = '1';
+            startGameTimer();
+        }
+
+        // 使用 A 卡
+        function useACard(cardId) {
+            if (gameState.gamePhase === GAME_PHASES.B_CARD_SELECT) {
+                showMessage('請先完成 B 卡選擇');
+                return;
+            }
+
+            const card = CARDS_DB[cardId];
+
+            // 檢查是否所有檔案都已有此線索
+            const allCluesExist = gameState.dossiers.every(
+                dossier => dossier.clues.some(clue => clue.sourceCardId === cardId)
+            );
+
+            if (allCluesExist) {
+                showMessage('此線索已調查過');
+                return;
+            }
+
+            // 為所有未解決的檔案添加線索
+            gameState.dossiers.forEach((dossier, i) => {
+                if (dossier.isSolved) return;
+                if (dossier.clues.some(clue => clue.sourceCardId === cardId)) return;
+
+                const role = gameState.rolesInPlay[i];
+                const result = card.test(role);
+                const clue = {
+                    text: card.text,
+                    result: result,
+                    sourceCardId: cardId
+                };
+
+                dossier.clues.push(clue);
+                updateNotepad(i, card.test, result);
+            });
+
+            renderDossiers();
+        }
+
+        // 開始 B 卡流程
+        function startBCardProcess() {
+            if (gameState.intelligencePoints <= 0) {
+                showMessage('情報點數不足');
+                return;
+            }
+            if (gameState.gamePhase === GAME_PHASES.B_CARD_SELECT) return;
+
+            gameState.gamePhase = GAME_PHASES.B_CARD_TARGET;
+            renderBCardTargetSelection();
+            toggleModal(elements.modals.bCardTarget, true);
+        }
+
+        // 渲染 B 卡目標選擇
+        function renderBCardTargetSelection() {
+            elements.modalContents.bCardTargetOptions.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const dossier = gameState.dossiers[i];
+                const isSolved = dossier.isSolved;
+                const roleName = isSolved ? gameState.rolesInPlay[i].name : `對象 ${i + 1}`;
+                const possibilities = gameState.notepad[i].size;
+
+                elements.modalContents.bCardTargetOptions.innerHTML += `
+                    <button 
+                        class="dossier p-3 rounded-lg text-center ${isSolved ? 'dossier-solved' : ''}" 
+                        data-dossier-index="${i}"
+                        ${isSolved ? 'disabled' : ''}
+                    >
+                        <span class="font-bold text-lg block">${roleName}</span>
+                        <span class="text-xs ${isSolved ? 'text-gray-200' : 'text-yellow-300'}">
+                            ${isSolved ? '(已揭露)' : `可能性: ${possibilities}`}
+                        </span>
+                    </button>
+                `;
+            }
+        }
+
+        // 選擇 B 卡目標
+        function selectBCardTarget(e) {
+            const targetEl = e.target.closest('button[data-dossier-index]');
+            if (!targetEl || targetEl.disabled) return;
+
+            const newIndex = parseInt(targetEl.dataset.dossierIndex, 10);
+
+            if (gameState.bCardTargetIndex !== newIndex) {
+                gameState.currentBDeckDraw = [];
+            }
+
+            gameState.bCardTargetIndex = newIndex;
+            gameState.gamePhase = GAME_PHASES.B_CARD_SELECT;
+
+            toggleModal(elements.modals.bCardTarget, false);
+            renderBCardDraw();
+            toggleModal(elements.modals.bCardDraw, true);
+        }
+
+        // 渲染 B 卡抽 3 選 1
+        function renderBCardDraw() {
+            const dossierIndex = gameState.bCardTargetIndex;
+            const targetName = gameState.dossiers[dossierIndex].isSolved ?
+                gameState.rolesInPlay[dossierIndex].name :
+                `對象 ${dossierIndex + 1}`;
+            elements.modalContents.bCardTargetName.textContent = targetName;
+
+            let drawnCards = [];
+
+            if (gameState.currentBDeckDraw.length > 0) {
+                drawnCards = gameState.currentBDeckDraw;
+            } else {
+                const bCardIds = Object.keys(CARDS_DB).filter(id => CARDS_DB[id].type === 'B');
+                const baseCardPool = [...bCardIds, ...gameState.unselectedACards];
+
+                const usedCardIds = new Set(
+                    gameState.dossiers[dossierIndex].clues.map(clue => clue.sourceCardId)
+                );
+
+                const availableCards = baseCardPool.filter(id => !usedCardIds.has(id));
+
+                shuffleArray(availableCards);
+
+                const cardsToDraw = Math.min(availableCards.length, GAME_CONFIG.B_CARD_DRAW_COUNT);
+                drawnCards = availableCards.slice(0, cardsToDraw);
+
+                gameState.currentBDeckDraw = drawnCards;
+            }
+
+            // 優化：使用 DocumentFragment 渲染 B 卡
+            const fragment = document.createDocumentFragment();
+            drawnCards.forEach(id => {
+                const card = CARDS_DB[id];
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card card-b p-4 rounded-lg';
+                cardEl.dataset.cardId = id;
+                cardEl.innerHTML = `<h5 class="font-bold text-lg text-white">${card.text}</h5>`;
+                fragment.appendChild(cardEl);
+            });
+            elements.modalContents.bCardDrawOptions.innerHTML = '';
+            elements.modalContents.bCardDrawOptions.appendChild(fragment);
+
+            if (drawnCards.length === 0) {
+                elements.modalContents.bCardDrawOptions.innerHTML = `<p class="text-center text-gray-400 col-span-2 md:col-span-3">沒有更多可用的卡片了。</p>`;
+                setTimeout(() => {
+                    if (gameState.gamePhase === GAME_PHASES.B_CARD_SELECT) {
+                        toggleModal(elements.modals.bCardDraw, false);
+                        showMessage(`對象 ${dossierIndex + 1} 已沒有可用的新卡片。`);
+                        gameState.gamePhase = GAME_PHASES.MAIN_TURN;
+                        gameState.bCardTargetIndex = null;
+                        gameState.currentBDeckDraw = [];
+                    }
+                }, GAME_CONFIG.MESSAGE_DURATION);
+            }
+        }
+
+        // 選擇並使用 B 卡
+        function useBCard(e) {
+            const cardEl = e.target.closest('.card');
+            if (!cardEl) return;
+
+            const cardId = cardEl.dataset.cardId;
+            const card = CARDS_DB[cardId];
+            const dossierIndex = gameState.bCardTargetIndex;
+
+            gameState.intelligencePoints--;
+
+            const role = gameState.rolesInPlay[dossierIndex];
+            const result = card.test(role);
+            const clue = {
+                text: card.text,
+                result: result,
+                sourceCardId: cardId
+            };
+
+            gameState.dossiers[dossierIndex].clues.push(clue);
+            updateNotepad(dossierIndex, card.test, result);
+
+            gameState.gamePhase = GAME_PHASES.MAIN_TURN;
+            gameState.bCardTargetIndex = null;
+            gameState.currentBDeckDraw = [];
+
+            toggleModal(elements.modals.bCardDraw, false);
+            renderStats();
+            renderDossiers();
+
+            checkGameOver();
+        }
+
+        // 更新筆記本
+        function updateNotepad(dossierIndex, testFunction, result) {
+            if (gameState.dossiers[dossierIndex].isSolved) return;
+
+            const possibleRoles = gameState.notepad[dossierIndex];
+            const newPossibleRoles = new Set();
+
+            for (const roleId of possibleRoles) {
+                const role = gameState.gameRolesDB[roleId];
+                if (testFunction(role) === result) {
+                    newPossibleRoles.add(roleId);
+                }
+            }
+
+            gameState.notepad[dossierIndex] = newPossibleRoles;
+        }
+
+        function checkGameWin() {
+            if (gameState.solvedCount === GAME_CONFIG.DOSSIER_COUNT) {
+                gameOver(true);
+            }
+        }
+
+        function checkGameOver() {
+            const isPointsExhausted = gameState.intelligencePoints <= 0 &&
+                gameState.solvedCount < GAME_CONFIG.DOSSIER_COUNT;
+            const isHealthExhausted = gameState.health <= 0;
+
+            if (isPointsExhausted || isHealthExhausted) {
+                gameOver(false);
+            }
+        }
+
+        function gameOver(isWin) {
+            gameState.gamePhase = GAME_PHASES.GAME_OVER;
+            clearInterval(gameState.gameTimerInterval);
+
+            if (isWin) {
+                elements.modalContents.gameOverTitle.textContent = '推理成功！';
+                elements.modalContents.gameOverTitle.className = 'game-title text-4xl font-bold text-green-400 mb-4';
+                elements.modalContents.gameOverMessage.textContent = '您看破了權力迷霧，所有身分都已揭露！';
+            } else {
+                elements.modalContents.gameOverTitle.textContent = '推理失敗...';
+                elements.modalContents.gameOverTitle.className = 'game-title text-4xl font-bold text-red-500 mb-4';
+
+                if (gameState.health <= 0) {
+                    elements.modalContents.gameOverMessage.textContent = '生命值已耗盡，推理失敗！';
+                } else {
+                    elements.modalContents.gameOverMessage.textContent = '情報點數已用盡，部分身分仍隱藏在迷霧中。';
+                }
+            }
+
+            // 優化：使用 DocumentFragment 渲染答案
+            const fragment = document.createDocumentFragment();
+            gameState.rolesInPlay.forEach((role, i) => {
+                const isSolved = gameState.dossiers[i].isSolved;
+                const answerEl = document.createElement('div');
+                answerEl.className = `p-2 ${isSolved ? 'bg-green-800' : 'bg-red-800'} rounded`;
+                answerEl.innerHTML = `
+                    <span class="font-bold">對象 ${i + 1}:</span>
+                    <span class="ml-2">${role.name}</span>
+                    ${isSolved ? ' (已揭露)' : ' (未揭露)'}
+                `;
+                fragment.appendChild(answerEl);
+            });
+            elements.modalContents.gameOverAnswers.innerHTML = '';
+            elements.modalContents.gameOverAnswers.appendChild(fragment);
+
+            toggleModal(elements.modals.gameOver, true);
+        }
+
+        // --- 渲染函式 ---
+
+        function renderStats() {
+            elements.stats.points.textContent = gameState.intelligencePoints;
+            elements.stats.solved.textContent = `${gameState.solvedCount} / ${GAME_CONFIG.DOSSIER_COUNT}`;
+            elements.stats.timer.textContent = formatTime(gameState.secondsElapsed);
+            renderHealth();
+        }
+
+        function renderHealth() {
+            if (!elements.stats.healthBar) return;
+            const fullHearts = '❤️'.repeat(gameState.health);
+            const emptyHearts = '🤍'.repeat(GAME_CONFIG.INITIAL_HEALTH - gameState.health);
+            elements.stats.healthBar.textContent = fullHearts + emptyHearts;
+        }
+
+        function renderDossiers() {
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < GAME_CONFIG.DOSSIER_COUNT; i++) {
+                const dossier = gameState.dossiers[i];
+                const possibilities = gameState.notepad[i].size;
+                let title, possibilitiesText;
+
+                if (dossier.isSolved) {
+                    const solvedRoleId = [...gameState.notepad[i]][0];
+                    const solvedRole = gameState.gameRolesDB[solvedRoleId];
+                    title = `<h3 class="text-xl font-bold text-green-300 mb-2">${solvedRole.name}</h3>`;
+                    possibilitiesText = `<div class="text-sm text-green-300 mb-2">身分已揭露</div>`;
+                } else {
+                    title = `<h3 class="text-xl font-bold text-white mb-2">對象 ${i + 1}</h3>`;
+                    possibilitiesText = `<div class="text-sm text-yellow-300 mb-2">可能性: <span id="dossier-${i}-possibilities">${possibilities}</span></div>`;
+                }
+
+                let cluesHtml = dossier.clues.map(clue => {
+                    const resultText = clue.result ? '是' : '否';
+                    const resultClass = clue.result ? 'clue-true' : 'clue-false';
+                    return `<div class="text-gray-300">${clue.text} <span class="${resultClass}">${resultText}</span></div>`;
+                }).join('');
+
+                const notesTextarea = `
+                    <textarea 
+                        class="w-full h-20 bg-gray-900 border border-gray-600 rounded-md p-2 text-sm text-gray-300 mt-2 resize-none" 
+                        placeholder="輸入您的筆記..." 
+                        maxlength="100"
+                        data-dossier-note-index="${i}"
+                        ${dossier.isSolved ? 'disabled' : ''}
+                    >${dossier.notes || ''}</textarea>
+                `;
+
+                const dossierEl = document.createElement('div');
+                dossierEl.className = `dossier rounded-lg p-4 ${dossier.isSolved ? 'dossier-solved' : ''}`;
+                dossierEl.innerHTML = `
+                    ${title}
+                    ${possibilitiesText}
+                    <div id="dossier-${i}-clues" class="space-y-1 text-sm h-32 overflow-y-auto">
+                        ${cluesHtml}
+                    </div>
+                    ${notesTextarea}
+                    ${!dossier.isSolved ? `
+                        <button 
+                            class="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg transition-colors mt-3"
+                            data-guess-btn-index="${i}"
+                        >
+                            確認身分
+                        </button>` : ''}
+                `;
+                fragment.appendChild(dossierEl);
+            }
+            elements.dossierContainer.innerHTML = '';
+            elements.dossierContainer.appendChild(fragment);
+        }
+
+        function openGuessModal(index) {
+            gameState.guessTargetIndex = index;
+            elements.modalContents.guessModalTitle.textContent = `確認 對象 ${index + 1} 的身分`;
+
+            const select = elements.modalContents.guessModalSelect;
+            select.innerHTML = '<option value="">-- 請選擇 --</option>';
+
+            const sortedRoles = Object.keys(gameState.gameRolesDB).sort((a, b) => {
+                return gameState.gameRolesDB[a].name.localeCompare(gameState.gameRolesDB[b].name, 'zh-Hant');
+            });
+
+            for (const roleId of sortedRoles) {
+                select.innerHTML += `<option value="${roleId}">${gameState.gameRolesDB[roleId].name}</option>`;
+            }
+
+            toggleModal(elements.modals.guess, true);
+        }
+
+        function handleSubmitGuess() {
+            const selectedRoleId = elements.modalContents.guessModalSelect.value;
+            const index = gameState.guessTargetIndex;
+
+            if (!selectedRoleId || index === null) {
+                showMessage('請選擇一個身分');
+                return;
+            }
+
+            const correctRoleId = gameState.rolesInPlay[index].id;
+
+            if (selectedRoleId === correctRoleId) {
+                gameState.dossiers[index].isSolved = true;
+                gameState.solvedCount++;
+
+                const solvedSet = new Set();
+                solvedSet.add(correctRoleId);
+                gameState.notepad[index] = solvedSet;
+
+                showMessage('身分正確！');
+                renderStats();
+                renderDossiers();
+                checkGameWin();
+            } else {
+                showMessage('身分錯誤！');
+                gameState.health--;
+                renderHealth();
+                checkGameOver();
+            }
+
+            toggleModal(elements.modals.guess, false);
+            gameState.guessTargetIndex = null;
+        }
+
+
+        // --- 輔助工具 ---
+
+        function pad(num) {
+            return String(num).padStart(2, '0');
+        }
+
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function startGameTimer() {
+            if (gameState.gameTimerInterval) {
+                clearInterval(gameState.gameTimerInterval);
+            }
+            gameState.gameTimerInterval = setInterval(() => {
+                gameState.secondsElapsed++;
+                elements.stats.timer.textContent = formatTime(gameState.secondsElapsed);
+            }, GAME_CONFIG.TIMER_INTERVAL);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function toggleModal(modal, show) {
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function showMessage(text) {
+            const modal = elements.modals.message;
+            elements.modalContents.messageText.textContent = text;
+            modal.style.opacity = '1';
+            modal.style.transform = 'translate(-50%, 0)';
+
+            setTimeout(() => {
+                modal.style.opacity = '0';
+                modal.style.transform = 'translate(-50%, -2.5rem)';
+            }, GAME_CONFIG.MESSAGE_DURATION);
+        }
+
+        // --- 事件監聽 ---
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await prepareGameData();
+
+            elements.startGameBtn.addEventListener('click', () => {
+                elements.startScreen.classList.add('hidden');
+                initGame();
+            });
+
+            elements.modalContents.aCardOptions.addEventListener('click', handleACardSelect);
+            elements.modalContents.confirmACardBtn.addEventListener('click', confirmACardSelection);
+
+            elements.dossierContainer.addEventListener('input', (e) => {
+                if (e.target.matches('textarea[data-dossier-note-index]')) {
+                    const index = parseInt(e.target.dataset.dossierNoteIndex, 10);
+                    if (gameState.dossiers[index]) {
+                        gameState.dossiers[index].notes = e.target.value;
+                    }
+                }
+            });
+
+            elements.dossierContainer.addEventListener('click', (e) => {
+                if (e.target.matches('button[data-guess-btn-index]')) {
+                    const index = parseInt(e.target.dataset.guessBtnIndex, 10);
+                    openGuessModal(index);
+                }
+            });
+
+            elements.modalContents.cancelGuessBtn.addEventListener('click', () => {
+                toggleModal(elements.modals.guess, false);
+                gameState.guessTargetIndex = null;
+            });
+            elements.modalContents.submitGuessBtn.addEventListener('click', handleSubmitGuess);
+
+
+            elements.playerHand.drawBCardBtn.addEventListener('click', startBCardProcess);
+            elements.modalContents.bCardTargetOptions.addEventListener('click', selectBCardTarget);
+            elements.modalContents.cancelBCardTargetBtn.addEventListener('click', () => {
+                toggleModal(elements.modals.bCardTarget, false);
+                gameState.gamePhase = GAME_PHASES.MAIN_TURN;
+                gameState.currentBDeckDraw = [];
+                gameState.bCardTargetIndex = null;
+            });
+            elements.modalContents.bCardDrawOptions.addEventListener('click', useBCard);
+
+            elements.modalContents.cancelBCardDrawBtn.addEventListener('click', () => {
+                toggleModal(elements.modals.bCardDraw, false);
+                toggleModal(elements.modals.bCardTarget, true);
+                gameState.gamePhase = GAME_PHASES.B_CARD_TARGET;
+            });
+
+            elements.modalContents.restartGameBtn.addEventListener('click', () => {
+                toggleModal(elements.modals.gameOver, false);
+                elements.gameContainer.classList.add('hidden');
+                elements.gameContainer.style.opacity = '0';
+                elements.startScreen.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+
+</html>

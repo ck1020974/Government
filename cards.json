@@ -1,0 +1,20 @@
+{
+    "president": { "name": "總統", "branch": "central", "type": "executive", "level": "central", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 40, "origin": "elected" },
+    "premier": { "name": "行政院長", "branch": "central", "type": "executive", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_appointed" },
+    "minister": { "name": "○○部長", "branch": "central", "type": "executive", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": false, "ageLimit": null, "origin": "president_appointed" },
+    "auditor_general": { "name": "審計長", "branch": "central", "type": "control", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+    "ly_president": { "name": "立法院院長", "branch": "central", "type": "legislative", "level": "central", "isElected": true, "isDirectlyElected": false, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+    "legislator": { "name": "立法委員", "branch": "central", "type": "legislative", "level": "central", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+    "grand_justice": { "name": "大法官", "branch": "central", "type": "judicial", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+    "jy_president": { "name": "司法院院長", "branch": "central", "type": "judicial", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+    "ey_president": { "name": "考試院院長", "branch": "central", "type": "examination", "level": "central", "isElected": false, "isDirectlyElected": false, "isNominatedByPresident": true, "ageLimit": null, "origin": "president_nominated" },
+    "special_mayor": { "name": "直轄市市長", "branch": "local", "type": "executive", "level": "special_municipality", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 30, "origin": "elected" },
+    "county_mayor": { "name": "縣市長", "branch": "local", "type": "executive", "level": "county_city", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 30, "origin": "elected" },
+    "township_mayor": { "name": "鄉鎮市長", "branch": "local", "type": "executive", "level": "township", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 26, "origin": "elected" },
+    "indigenous_dist_head": { "name": "直轄市山地原住民區長", "branch": "local", "type": "executive", "level": "indigenous_district", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 26, "origin": "elected" },
+    "village_chief": { "name": "村里長", "branch": "local", "type": "executive", "level": "village", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+    "special_councilor": { "name": "直轄市議員", "branch": "local", "type": "legislative", "level": "special_municipality", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+    "county_councilor": { "name": "縣市議員", "branch": "local", "type": "legislative", "level": "county_city", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+    "township_rep": { "name": "鄉鎮市民代表", "branch": "local", "type": "legislative", "level": "township", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" },
+    "indigenous_dist_rep": { "name": "直轄市山地原住民區民代表", "branch": "local", "type": "legislative", "level": "indigenous_district", "isElected": true, "isDirectlyElected": true, "isNominatedByPresident": false, "ageLimit": 23, "origin": "elected" }
+}
