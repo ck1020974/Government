@@ -169,5 +169,14 @@
         "isElected": false,
         "ageLimit": null,
         "origin": "president_nominated"
+    },
+    "municipality_councilor": {
+        "name": "直轄市議員",
+        "branch": "local",
+        "type": "legislative",
+        "level": "special_municipality",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "elected"
     }
 }
