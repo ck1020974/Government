@@ -142,13 +142,56 @@
 <body class="min-h-screen p-4 md:p-8">
 
     <div id="start-screen"
-        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 text-center p-4 hidden">
-        <h1 class="game-title text-5xl md:text-7xl font-bold text-white tracking-wider">政壇鬼抓人</h1>
-        <p class="text-2xl text-gray-400 mt-4 mb-10">「在權力迷霧中，看破所有對象！」</p>
-        <button id="start-game-btn"
-            class="py-3 px-10 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold text-xl rounded-lg transition-colors shadow-lg animate-pulse">
-            開始調查
-        </button>
+        class="fixed inset-0 z-50 flex flex-col justify-between items-center bg-gray-900 text-center p-4 overflow-y-auto custom-scrollbar">
+
+        <!-- Main Content Centered -->
+        <div class="flex-1 flex flex-col items-center justify-center w-full max-w-4xl px-4 py-10">
+            <h1 class="game-title text-5xl md:text-7xl font-bold text-white tracking-wider mb-4">政壇鬼抓人</h1>
+            <p class="text-2xl text-gray-400 mb-10">「在權力迷霧中，看破所有對象！」</p>
+            <button id="start-game-btn"
+                class="py-3 px-10 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold text-xl rounded-lg transition-colors shadow-lg animate-pulse mb-12">
+                開始調查
+            </button>
+
+            <!-- Crawler/SEO Content: Visible Description -->
+            <section
+                class="max-w-3xl text-gray-400 text-sm md:text-base leading-relaxed space-y-6 border-t border-gray-800 pt-8 animate-fade-in-up">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-300 mb-2">關於遊戲</h2>
+                    <p>
+                        「政壇鬼抓人」是一款結合邏輯推理與台灣政治體制的網頁遊戲。玩家將扮演調查員，透過策略性的提問（如參選年齡、產生方式、職權行使），逐步縮小嫌疑範圍，從隨機生成的政治人物名單中找出目標對象真實身分。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono text-gray-500 text-left">
+                    <div class="bg-gray-800/50 p-3 rounded border border-gray-700">
+                        <span class="block text-yellow-500 font-bold mb-1 text-sm">邏輯推理 (Logic)</span>
+                        運用刪去法與集合概念，分析每一條線索，精準鎖定目標。
+                    </div>
+                    <div class="bg-gray-800/50 p-3 rounded border border-gray-700">
+                        <span class="block text-yellow-500 font-bold mb-1 text-sm">公民素養 (Civics)</span>
+                        遊戲化學習，認識不同公職人員的法定年齡、任期與職權。
+                    </div>
+                    <div class="bg-gray-800/50 p-3 rounded border border-gray-700">
+                        <span class="block text-yellow-500 font-bold mb-1 text-sm">挑戰極限 (Challenge)</span>
+                        在情報點數與生命值的雙重壓力下，完成五個高難度檔案的調查。
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="w-full py-6 mt-8 border-t border-gray-800 text-gray-500 text-sm shrink-0">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
+                <span>© 2026 李祐馨. All Rights Reserved.</span>
+                <a href="privacy.html" class="hover:text-white transition-colors underline decoration-dotted">隱私權政策
+                    (Privacy Policy)</a>
+                <a href="mailto:yuhsinlee@kcislk.ntpc.edu.tw" class="hover:text-white transition-colors">聯絡信箱</a>
+            </div>
+            <p class="text-xs text-gray-600 mt-2 max-w-lg mx-auto">
+                本遊戲內容僅供娛樂與教育用途，所有角色圖像與情境均為遊戲設定，不代表真實人物立場。
+            </p>
+        </footer>
     </div>
 
     <!-- Toast Container -->
