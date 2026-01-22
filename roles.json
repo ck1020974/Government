@@ -9,7 +9,7 @@
         "origin": "elected"
     },
     "premier": {
-        "name": "行政院長",
+        "name": "行政院院長",
         "branch": "central",
         "type": "executive",
         "level": "central",
