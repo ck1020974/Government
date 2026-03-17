@@ -89,15 +89,6 @@
         "ageLimit": 26,
         "origin": "elected"
     },
-    "district_admin": {
-        "name": "直轄市區長",
-        "branch": "local",
-        "type": "executive",
-        "level": "district",
-        "isElected": false,
-        "ageLimit": null,
-        "origin": "mayor_appointed"
-    },
     "village_chief": {
         "name": "村里長",
         "branch": "local",
@@ -121,24 +112,6 @@
         "branch": "local",
         "type": "legislative",
         "level": "township",
-        "isElected": true,
-        "ageLimit": 23,
-        "origin": "elected"
-    },
-    "indigenous_district_exec": {
-        "name": "直轄市山地原住民區區長",
-        "branch": "local",
-        "type": "executive",
-        "level": "district",
-        "isElected": true,
-        "ageLimit": 26,
-        "origin": "elected"
-    },
-    "indigenous_district_rep": {
-        "name": "直轄市山地原住民區民代表",
-        "branch": "local",
-        "type": "legislative",
-        "level": "district",
         "isElected": true,
         "ageLimit": 23,
         "origin": "elected"
