@@ -1,4 +1,22 @@
 {
+    "exam_member": {
+        "name": "考試委員",
+        "branch": "central",
+        "type": "examination",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    },
+    "control_member": {
+        "name": "監察委員",
+        "branch": "central",
+        "type": "control",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    },
     "president": {
         "name": "總統",
         "branch": "central",
