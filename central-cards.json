@@ -1,0 +1,368 @@
+{
+    "c_elected": {
+        "type": "B",
+        "mode": "central",
+        "category": "formation",
+        "text": "是否具有民選身分？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "president",
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 2
+    },
+    "c_mutual": {
+        "type": "B",
+        "mode": "central",
+        "category": "formation",
+        "text": "是否由立法委員互選產生？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_premier_appointment": {
+        "type": "B",
+        "mode": "central",
+        "category": "formation",
+        "text": "是否由行政院院長提請總統任命？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "minister"
+            ]
+        },
+        "weight": 1
+    },
+    "c_consent": {
+        "type": "B",
+        "mode": "central",
+        "category": "formation",
+        "text": "是否由總統提名，經立法院同意後任命？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "grand_justice",
+                "judicial_president",
+                "exam_member",
+                "exam_president",
+                "control_member",
+                "control_president",
+                "auditor_general"
+            ]
+        },
+        "weight": 2
+    },
+    "c_dean": {
+        "type": "B",
+        "mode": "central",
+        "category": "formation",
+        "text": "是否擔任五院之一的院長？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "premier",
+                "ly_president",
+                "judicial_president",
+                "exam_president",
+                "control_president"
+            ]
+        },
+        "weight": 2
+    },
+    "c_head": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否為國家元首，對外代表國家？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_commander": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否統帥陸海空三軍？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_promulgate": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否依法公布法律？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_admin": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否為內閣成員？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "premier",
+                "minister"
+            ]
+        },
+        "weight": 2
+    },
+    "c_budget_propose": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否參與編製、提出中央政府預算案？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "premier",
+                "minister"
+            ]
+        },
+        "weight": 1
+    },
+    "c_reconsider": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否參與行政院的覆議提案作業？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "premier",
+                "minister"
+            ]
+        },
+        "weight": 1
+    },
+    "c_confidence_target": {
+        "type": "B",
+        "mode": "central",
+        "category": "executive",
+        "text": "是否為立法院不信任案的對象？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "premier"
+            ]
+        },
+        "weight": 1
+    },
+    "c_laws": {
+        "type": "B",
+        "mode": "central",
+        "category": "legislative",
+        "text": "是否參與制定、審查及修改法律？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_question": {
+        "type": "B",
+        "mode": "central",
+        "category": "legislative",
+        "text": "是否有權質詢行政院院長及各部會首長？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_personnel": {
+        "type": "B",
+        "mode": "central",
+        "category": "legislative",
+        "text": "是否對總統提名的官員行使人事同意權？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_confidence": {
+        "type": "B",
+        "mode": "central",
+        "category": "legislative",
+        "text": "是否可提議對行政院院長的不信任案？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_amend": {
+        "type": "B",
+        "mode": "central",
+        "category": "legislative",
+        "text": "是否可提議憲法修正案或領土變更案？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_budget_review": {
+        "type": "B",
+        "mode": "central",
+        "category": "legislative",
+        "text": "是否參與審查中央政府預算案？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "legislator",
+                "ly_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_constitutional": {
+        "type": "B",
+        "mode": "central",
+        "category": "judicial",
+        "text": "是否參與憲法審判？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "grand_justice",
+                "judicial_president"
+            ]
+        },
+        "weight": 2
+    },
+    "c_president_trial": {
+        "type": "B",
+        "mode": "central",
+        "category": "judicial",
+        "text": "是否參與審理總統、副總統彈劾案？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "grand_justice",
+                "judicial_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_discipline": {
+        "type": "B",
+        "mode": "central",
+        "category": "judicial",
+        "text": "所屬機關是否掌理公務人員的司法懲戒？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "grand_justice",
+                "judicial_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_exam": {
+        "type": "B",
+        "mode": "central",
+        "category": "examination_oversight",
+        "text": "是否掌管國家考試？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "exam_member",
+                "exam_president"
+            ]
+        },
+        "weight": 2
+    },
+    "c_civil_service": {
+        "type": "B",
+        "mode": "central",
+        "category": "examination_oversight",
+        "text": "是否掌管公務人員銓敘、撫卹及退休事項？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "exam_member",
+                "exam_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_correction": {
+        "type": "B",
+        "mode": "central",
+        "category": "examination_oversight",
+        "text": "是否可對行政機關的不當施政提出糾正？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "control_member",
+                "control_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_official_impeach": {
+        "type": "B",
+        "mode": "central",
+        "category": "examination_oversight",
+        "text": "是否可對違法失職公務員提案彈劾或糾舉？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "control_member",
+                "control_president"
+            ]
+        },
+        "weight": 1
+    },
+    "c_audit": {
+        "type": "B",
+        "mode": "central",
+        "category": "examination_oversight",
+        "text": "是否主管政府收支與決算的審核？",
+        "condition": {
+            "field": "roleKey",
+            "value": [
+                "auditor_general"
+            ]
+        },
+        "weight": 2
+    }
+}

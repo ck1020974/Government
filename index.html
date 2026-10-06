@@ -25,7 +25,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght{700;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="style.css?v=21">
 
     <style>
         @keyframes bounce-and-land {
@@ -149,6 +149,7 @@
         <h1 class="game-title fade-in-delayed">政壇鬼抓人</h1>
         <div id="opening-targets" aria-label="人物登場"></div>
         <div class="opening-actions fade-in-delayed" role="group" aria-label="選擇難度">
+          <button class="mode-choice" data-mode="central">中央</button>
           <button class="mode-choice" data-mode="easy">簡單</button>
           <button class="mode-choice" data-mode="hard">困難</button>
         </div>
@@ -297,6 +298,26 @@
 
 
 
+    <div id="central-investigation-modal" class="modal fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="central-investigation-title">
+        <section class="central-desk">
+            <aside class="central-sidebar">
+                <div class="central-profile">
+                    <img id="central-target-img" alt="調查對象">
+                    <p>調查對象</p>
+                    <h2 id="central-investigation-title"></h2>
+                </div>
+                <div class="central-sidebar-actions">
+                    <button id="central-refresh-btn" class="central-reroll" onclick="rerollCentralQuestions()">🔄 換一批 · 2 情報</button>
+                    <p id="central-refresh-status" role="status"></p>
+                </div>
+                <button class="file-close central-close" onclick="closeCentralInvestigation()">[ 關閉檔案 ]</button>
+            </aside>
+            <div class="central-document paper-texture">
+                <header class="central-document-header"><h3>調查問題</h3><span>每題 5 情報</span></header>
+                <div id="central-questions"></div>
+            </div>
+        </section>
+    </div>
     <div id="b-card-draw-modal"
         class="modal fixed inset-0 z-50 flex md:items-center justify-center p-4 hidden overflow-y-auto items-start">
         <div
@@ -312,15 +333,17 @@
                     <img id="investigation-target-img" class="w-full h-full object-cover" src="" alt="Target Photo">
                 </div>
 
-                <div class="space-y-1 w-full px-8 md:px-0 md:flex-1 md:overflow-y-auto pl-2">
+                <div id="investigation-categories" class="space-y-1 w-full px-8 md:px-0 md:flex-1 md:overflow-y-auto pl-2">
                     <button class="category-btn" data-cat="age">詢問年齡門檻</button>
                     <button class="category-btn" data-cat="power">詢問權力分立</button>
                     <button class="category-btn" data-cat="level">詢問政府層級</button>
                     <button class="category-btn" data-cat="origin">詢問產生方式</button>
                 </div>
 
+                <button id="reroll-central-btn" class="central-reroll hidden" onclick="rerollCentralQuestions()">🔄 換一批 · 2 情報</button>
+                <p id="central-batch-status" class="hidden text-sm text-gray-400 mt-2" role="status"></p>
                 <button id="cancel-b-card-draw-btn"
-                    class="mt-4 m-2 py-3 border border-gray-600 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors text-sm font-mono text-center">
+                    class="file-close ordinary-close">
                     [ 關閉檔案 ]
                 </button>
             </div>
@@ -492,18 +515,24 @@
         async function loadGameData() {
             try {
                 const timestamp = new Date().getTime();
-                const [rolesRes, cardsRes] = await Promise.all([
+                const [rolesRes, cardsRes, centralRes, ministersRes] = await Promise.all([
                     fetch(`roles.json?t=${timestamp}`),
-                    fetch(`cards.json?t=${timestamp}`)
+                    fetch(`cards.json?t=${timestamp}`),
+                    fetch(`central-cards.json?t=${timestamp}`),
+                    fetch(`ministers.json?t=${timestamp}`)
                 ]);
 
-                if (!rolesRes.ok || !cardsRes.ok) throw new Error('Failed to load data files');
+                if (!rolesRes.ok || !cardsRes.ok || !centralRes.ok || !ministersRes.ok) throw new Error('Failed to load data files');
 
                 const rolesJson = await rolesRes.json();
                 const cardsJson = await cardsRes.json();
 
                 ROLES_DATA = rolesJson;
-                CARDS_DATA = cardsJson;
+                CARDS_DATA = { ...cardsJson, ...await centralRes.json() };
+                const ministers = await ministersRes.json();
+                if (!ministers.length) throw new Error('Empty minister pool');
+                ROLES_DATA.minister.name = ministers[Math.floor(Math.random() * ministers.length)];
+                for (const [key, role] of Object.entries(ROLES_DATA)) role.roleKey = key;
 
                 // 處理 Cards 邏輯轉換
                 for (let key in CARDS_DATA) {
@@ -542,7 +571,9 @@
             INITIAL_INTEL: 50,
             INITIAL_HP: 5,
             COST_A_CARD: 0, // 初始免費
-            COST_B_CARD: 5
+            COST_B_CARD: 5,
+            COST_REROLL: 2,
+            CENTRAL_BATCH_SIZE: 5
         };
 
         let state = {
@@ -560,7 +591,7 @@
         const $ = s => document.querySelector(s);
         const $$ = s => document.querySelectorAll(s);
 
-        const MODES = { easy: { count: 3, label: '簡單模式' }, hard: { count: 6, label: '困難模式' } };
+        const MODES = { central: { count: 6, label: '中央模式' }, easy: { count: 3, label: '簡單模式' }, hard: { count: 6, label: '困難模式' } };
         let chosenMode = 'easy';
         let starting = false;
         function shuffled(items) {
@@ -601,7 +632,7 @@
             if (!Loaded) return;
 
             // 隨機選 5 個角色 (邏輯)
-            const allRoleKeys = Object.keys(ROLES_DATA);
+            const allRoleKeys = Object.keys(ROLES_DATA).filter(k => chosenMode !== 'central' || ROLES_DATA[k].branch === 'central');
             const shuffledRoles = shuffled(allRoleKeys);
             const targetCount = MODES[chosenMode].count;
             const selectedRoleKeys = shuffledRoles.slice(0, targetCount);
@@ -635,7 +666,7 @@
                 }),
                 dossiers: selectedRoleKeys.map((k, i) => {
                     const candidates = candidateKeys(k, allRoleKeys);
-                    return { index: i, isSolved: false, clues: [], candidates, possibilities: new Set(candidates) };
+                    return { index: i, isSolved: false, clues: [], candidates, possibilities: new Set(candidates), questionBatch: null };
                 }),
                 intel: CONFIG.INITIAL_INTEL,
                 hp: CONFIG.INITIAL_HP,
@@ -647,6 +678,7 @@
 
             $('#mode-screen').classList.add('hidden');
             document.body.dataset.mode = chosenMode;
+            renderInvestigationCategories();
             // UI 重置
             updateHUD();
             renderDossiers();
@@ -657,6 +689,11 @@
             renderACardSelection();
             $('#game-container').classList.remove('hidden');
             setTimeout(() => $('#game-container').style.opacity = '1', 100);
+
+            if (chosenMode === 'central') {
+                $('#setup-screen').classList.add('hidden');
+                return;
+            }
 
             // Show Setup Screen (Layer 1 active by default)
             $('#setup-screen').classList.remove('hidden');
@@ -767,7 +804,7 @@
                             </div>
 
                             <!-- True Role Name Footer (Green) -->
-                            <div class="w-full py-2 bg-emerald-700 text-white font-bold rounded shadow text-sm uppercase tracking-wide text-center mt-auto cursor-default border border-emerald-600">
+                            <div class="dossier-result dossier-result-solved">
                                 ${trueRoleName}
                             </div>
                         </div>
@@ -805,7 +842,7 @@
                             </div>
 
                             <!-- True Role Name Footer (Red) -->
-                            <div class="w-full py-2 bg-red-900 text-red-100 font-bold rounded shadow text-sm uppercase tracking-wide text-center mt-auto cursor-default border border-red-800">
+                            <div class="dossier-result dossier-result-revealed">
                                 ${trueRoleName}
                             </div>
                         </div>
@@ -998,7 +1035,15 @@
         // --- B 卡流程 (重構：主動調查) ---
 
         window.openInvestigationPanel = function (index) {
+            if (!state.dossiers[index] || state.dossiers[index].isSolved || state.gameStatus !== 'playing') return;
             state.targetIndex = index;
+            if (chosenMode === 'central') {
+                $('#central-investigation-title').textContent = state.rolesInPlay[index].characterName;
+                $('#central-target-img').src = state.rolesInPlay[index].characterImage;
+                $('#central-investigation-modal').classList.remove('hidden');
+                renderCentralQuestions();
+                return;
+            }
             // Removed target modal line as it is no longer used
 
             // UI 設定
@@ -1015,16 +1060,94 @@
 
 
 
-        // 分類按鈕點擊事件
-        $$('.category-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        const CENTRAL_CATEGORIES = {
+            formation: '產生與職務', executive: '總統與行政', legislative: '立法與預算',
+            judicial: '司法與憲法', examination_oversight: '考試與監察'
+        };
+        function renderInvestigationCategories() {
+            const central = chosenMode === 'central';
+            $('#investigation-categories').classList.toggle('hidden', central);
+            $('#reroll-central-btn').classList.toggle('hidden', !central);
+            $('#central-batch-status').classList.toggle('hidden', !central);
+            const categories = chosenMode === 'central' ? CENTRAL_CATEGORIES : {
+                age: '詢問年齡門檻', power: '詢問權力分立', level: '詢問政府層級', origin: '詢問產生方式'
+            };
+            $('#investigation-categories').innerHTML = Object.entries(categories).map(([key, label]) =>
+                `<button class="category-btn" data-cat="${key}">${label}</button>`).join('');
+            $$('.category-btn').forEach(btn => btn.addEventListener('click', () => {
                 $$('.category-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
+                btn.classList.add('active');
+                renderQuestionsByCategory(btn.dataset.cat);
+            }));
+        }
 
-                const cat = e.currentTarget.dataset.cat;
-                renderQuestionsByCategory(cat);
+        function availableCentralQuestions(index) {
+            const asked = new Set(state.dossiers[index].clues.map(c => c.cardId));
+            return Object.keys(CARDS_DATA).filter(k => CARDS_DATA[k].type === 'B' && CARDS_DATA[k].mode === 'central' && !asked.has(k));
+        }
+
+        function weightedCentralQuestions(keys) {
+            // Weighted sampling without replacement; ordinary questions default to weight 1.
+            return keys.map(key => ({
+                key,
+                priority: -Math.log(Math.max(Math.random(), Number.MIN_VALUE)) / (CARDS_DATA[key].weight || 1)
+            })).sort((a, b) => a.priority - b.priority).map(item => item.key);
+        }
+
+        function drawCentralQuestions(index, previous = []) {
+            const dossier = state.dossiers[index];
+            const pool = weightedCentralQuestions(availableCentralQuestions(index));
+            const old = new Set(previous || []);
+            const possible = [...dossier.possibilities];
+            const informative = pool.filter(key => {
+                const answers = new Set(possible.map(k => CARDS_DATA[key].test(ROLES_DATA[k])));
+                return answers.size > 1;
             });
-        });
+            const picked = [];
+            const categories = new Set();
+            const add = key => { picked.push(key); categories.add(CARDS_DATA[key].category); };
+            // Use remaining candidates, never the secret answer, to guarantee a useful question.
+            const anchor = informative.find(k => !old.has(k)) || informative[0];
+            if (anchor) add(anchor);
+            while (picked.length < Math.min(CONFIG.CENTRAL_BATCH_SIZE, pool.length)) {
+                const remaining = pool.filter(k => !picked.includes(k));
+                const key = remaining.find(k => !old.has(k) && !categories.has(CARDS_DATA[k].category)) ||
+                    remaining.find(k => !categories.has(CARDS_DATA[k].category)) ||
+                    remaining.find(k => !old.has(k)) || remaining[0];
+                add(key);
+            }
+            return shuffled(picked);
+        }
+
+        function renderCentralQuestions() {
+            const index = state.targetIndex;
+            const dossier = state.dossiers[index];
+            if (!dossier.questionBatch) dossier.questionBatch = drawCentralQuestions(index);
+            $('#central-questions').innerHTML = dossier.questionBatch.length ?
+                `<div class="central-question-grid">${dossier.questionBatch.map(key => {
+                    const card = CARDS_DATA[key];
+                    return `<button class="central-question" onclick="executeInvestigation('${key}')" ${state.intel < CONFIG.COST_B_CARD ? 'disabled' : ''}><span>${card.text}</span><span class="central-question-arrow" aria-hidden="true">➥</span></button>`;
+                }).join('')}</div>` : '<p class="text-gray-500 text-center mt-10">已完成所有提問，可根據線索指認身分。</p>';
+            const canChange = availableCentralQuestions(index).length > dossier.questionBatch.length;
+            $('#central-refresh-btn').disabled = state.intel < CONFIG.COST_REROLL || !canChange;
+            $('#central-refresh-status').textContent = !canChange ? '目前已列出所有未問過的題目' :
+                state.intel < CONFIG.COST_REROLL ? '情報不足，無法換題' : '';
+        }
+
+        window.rerollCentralQuestions = function () {
+            if (chosenMode !== 'central' || state.gameStatus !== 'playing' || state.intel < CONFIG.COST_REROLL) return;
+            const index = state.targetIndex;
+            const dossier = state.dossiers[index];
+            if (!dossier || dossier.isSolved || !dossier.questionBatch || availableCentralQuestions(index).length <= dossier.questionBatch.length) return;
+            const next = drawCentralQuestions(index, dossier.questionBatch);
+            // A paid refresh must actually change the available choices.
+            if (next.length === dossier.questionBatch.length && next.every(k => dossier.questionBatch.includes(k))) return;
+            state.intel -= CONFIG.COST_REROLL;
+            dossier.questionBatch = next;
+            updateHUD();
+            renderDossiers();
+            renderCentralQuestions();
+        };
 
         const categoryNames = {
             'age': '// 詢問年齡門檻',
@@ -1034,9 +1157,11 @@
         };
 
         function renderQuestionsByCategory(category) {
+            if (chosenMode === 'central') return;
             const list = $('#b-card-questions-list');
             const questions = Object.entries(CARDS_DATA)
-                .filter(([k, v]) => v.type === 'B' && v.category === category);
+                .filter(([k, v]) => v.type === 'B' && v.category === category &&
+                    (chosenMode === 'central' ? v.mode === 'central' : v.mode !== 'central'));
 
             // 檢查該對象是否已經問過這些問題
             const askedCards = new Set(state.dossiers[state.targetIndex].clues.map(c => c.cardId));
@@ -1061,7 +1186,7 @@
             `;
             }).join('');
 
-            $('#question-panel-title').innerText = categoryNames[category] || category.toUpperCase();
+            $('#question-panel-title').innerText = categoryNames[category] || `// ${CENTRAL_CATEGORIES[category] || category}`;
 
             // Mobile UX: Scroll to questions if in column layout (mobile)
             if (window.innerWidth < 768) {
@@ -1073,6 +1198,12 @@
         }
 
         window.executeInvestigation = function (cardId) {
+            const dossier = state.dossiers[state.targetIndex];
+            const selectedCard = CARDS_DATA[cardId];
+            if (!dossier || dossier.isSolved || state.gameStatus !== 'playing' || !selectedCard ||
+                (chosenMode === 'central' ? selectedCard.mode !== 'central' : selectedCard.mode === 'central') ||
+                dossier.clues.some(c => c.cardId === cardId)) return;
+            if (chosenMode === 'central' && !(dossier.questionBatch || []).includes(cardId)) return;
             if (state.intel < CONFIG.COST_B_CARD) {
                 alert("點數不足");
                 return;
@@ -1086,12 +1217,17 @@
             // 紀錄
             state.dossiers[state.targetIndex].clues.push({ cardId: cardId, result: result });
             calculatePossibilities(state.targetIndex);
+            if (chosenMode === 'central') dossier.questionBatch = drawCentralQuestions(state.targetIndex, dossier.questionBatch);
 
             $('#b-card-draw-modal').classList.add('hidden');
+            if (chosenMode === 'central') window.closeCentralInvestigation();
             updateHUD();
             renderDossiers();
         };
 
+        window.closeCentralInvestigation = function () {
+            $('#central-investigation-modal').classList.add('hidden');
+        };
         $('#cancel-b-card-draw-btn').addEventListener('click', () => {
             $('#b-card-draw-modal').classList.add('hidden');
         });
