@@ -513,6 +513,12 @@
             "卓榮泰.png"
         ];
 
+        // 更新角色圖片時同步調整版本，讓瀏覽器取得新圖。
+        const CHARACTER_IMAGE_VERSION = '20261006-07fb952';
+        function characterImageUrl(filename) {
+            return `role/${encodeURIComponent(filename)}?v=${CHARACTER_IMAGE_VERSION}`;
+        }
+
         // 載入資料
         async function loadGameData() {
             try {
@@ -662,7 +668,7 @@
                     return {
                         id: k,
                         ...ROLES_DATA[k],
-                        characterImage: `role/${encodeURIComponent(charFilename)}`,
+                        characterImage: characterImageUrl(charFilename),
                         characterName: charName
                     };
                 }),
@@ -1372,7 +1378,7 @@
             else {
                 const preview = shuffled(CHARACTERS_DATA).slice(0, 5).map(filename => ({
                     characterName: filename.substring(0, filename.lastIndexOf('.')),
-                    characterImage: `role/${encodeURIComponent(filename)}`
+                    characterImage: characterImageUrl(filename)
                 }));
                 renderStage1Cards(preview, $('#opening-targets'));
                 $$('#opening-targets > div').forEach((card, i) => {
