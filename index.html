@@ -25,7 +25,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght{700;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=21">
+    <link rel="stylesheet" href="style.css?v=22">
 
     <style>
         @keyframes bounce-and-land {
@@ -62,38 +62,6 @@
 
         .animate-bounce-twice {
             animation: bounce-and-land 1.5s forwards;
-        }
-
-        /* Opening Card Animation */
-        @keyframes shuffle-deal {
-            0% {
-                opacity: 0;
-                transform: scale(0.2) translateY(300px) rotate(180deg);
-            }
-
-            40% {
-                opacity: 1;
-                transform: scale(1.2) translateY(0) rotate(-10deg);
-            }
-
-            60% {
-                transform: scale(1.1) rotate(5deg);
-            }
-
-            80% {
-                transform: scale(1.05) rotate(-3deg);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1) rotate(0);
-            }
-        }
-
-        .card-opening-anim {
-            opacity: 0;
-            /* Start hidden */
-            animation: shuffle-deal 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         .fade-in-delayed {
@@ -714,14 +682,6 @@
             $('#setup-subtitle').classList.remove('hidden');
 
             $('#setup-screen').click();
-            // Explicitly trigger animation after screen is visible to ensure it runs
-            requestAnimationFrame(() => {
-                const cards = $$('#stage-1-targets > div');
-                cards.forEach((card, i) => {
-                    card.classList.add('card-opening-anim');
-                    card.style.animationDelay = `${i * 0.2}s`; // Stagger effect
-                });
-            });
         }
 
         // --- 核心邏輯：可能性計算 ---
@@ -906,11 +866,17 @@
             const rotations = [-3, -1, 0, 1, 3]; // 角度變小，更像整理過的文件
 
             container.innerHTML = roles.map((role, i) => `
-            <div class="photo-card w-40 h-56 flex flex-col items-center justify-start overflow-hidden relative"
-        style="transform: rotate(${rotations[i % rotations.length]}deg); z-index: ${i === 2 ? 10 : 0};">
+            <div class="opening-card" style="--card-rotation: ${rotations[i % rotations.length]}deg; --card-delay: ${i * 90}ms; z-index: ${i === 2 ? 10 : 0};">
+              <div class="opening-card-hover">
+               <div class="opening-card-turn">
+                <div class="opening-card-back" aria-hidden="true">
+                    <span class="opening-card-seal">機密檔案</span>
+                    <span class="opening-card-number">對象 ${String(i + 1).padStart(2, '0')}</span>
+                </div>
+                <div class="opening-card-front photo-card flex flex-col items-center justify-start overflow-hidden">
 
         <div class="w-full h-full bg-gray-200 overflow-hidden relative">
-            <img src="${role.characterImage}" class="w-full h-full object-cover object-top opacity-90"
+            <img src="${role.characterImage}" decoding="async" class="w-full h-full object-cover object-top opacity-90"
                 alt="${role.characterName}">
         </div>
 
@@ -926,8 +892,37 @@
                 class="absolute top-2 right-2 border-2 border-red-600 text-red-600 text-[10px] px-1 font-bold transform rotate-12 opacity-60">
                 目標對象
             </div>
-    </div>
+                </div>
+               </div>
+              </div>
+            </div>
             `).join('');
+            animateOpeningCards(container);
+        }
+
+        async function animateOpeningCards(container) {
+            const cards = [...container.children];
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            // Keep the backs visible while portraits decode, without blocking mode selection.
+            cards.forEach(card => card.classList.add('is-preparing', 'card-opening-anim'));
+            await Promise.allSettled(cards.map(card => card.querySelector('img').decode()));
+            // Two frames commit the initial back face before starting the flip.
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (!container.getClientRects().length || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    cards.forEach(card => card.classList.remove('is-preparing', 'card-opening-anim', 'is-revealing'));
+                    return;
+                }
+                cards.forEach(card => {
+                    if (card.parentElement !== container) return;
+                    card.classList.add('is-revealing');
+                    card.classList.remove('is-preparing');
+                    const turn = card.querySelector('.opening-card-turn');
+                    turn.addEventListener('animationend', () => {
+                        card.classList.remove('card-opening-anim', 'is-revealing');
+                    }, { once: true });
+                });
+            }));
         }
 
         function renderACardSelection() {
@@ -1381,10 +1376,6 @@
                     characterImage: characterImageUrl(filename)
                 }));
                 renderStage1Cards(preview, $('#opening-targets'));
-                $$('#opening-targets > div').forEach((card, i) => {
-                    card.classList.add('card-opening-anim');
-                    card.style.animationDelay = `${i * 0.2}s`;
-                });
             }
         });
 
