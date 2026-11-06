@@ -25,7 +25,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght{700;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=22">
+    <link rel="stylesheet" href="style.css?v=28">
 
     <style>
         @keyframes bounce-and-land {
@@ -110,16 +110,36 @@
 
 
 
+    <!-- 按鈕共用圖示 -->
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+      <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4.5L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14 4.5l2-2"/><path d="M20 20v-4.5h-4.5"/></symbol>
+      <symbol id="icon-clues" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1 1 2-2M3 12l1 1 2-2M3 18l1 1 2-2"/></symbol>
+      <symbol id="icon-back" viewBox="0 0 24 24"><path d="M10 6 4 12l6 6"/><path d="M4 12h16"/></symbol>
+    </svg>
+
     <!-- Toast Container -->
     <div id="toast-container" role="status" aria-live="polite"></div>
     <section id="mode-screen" class="mode-screen">
       <div class="mode-panel">
         <h1 class="game-title fade-in-delayed">政壇鬼抓人</h1>
         <div id="opening-targets" aria-label="人物登場"></div>
-        <div class="opening-actions fade-in-delayed" role="group" aria-label="選擇難度">
-          <button class="mode-choice" data-mode="central">中央</button>
-          <button class="mode-choice" data-mode="easy">簡單</button>
-          <button class="mode-choice" data-mode="hard">困難</button>
+        <div class="opening-actions mode-groups fade-in-delayed" role="group" aria-label="選擇模式">
+          <div class="mode-group" role="group" aria-labelledby="mode-group-central">
+            <p id="mode-group-central" class="mode-group-title">中央</p>
+            <div class="mode-group-buttons">
+              <button class="mode-choice" data-mode="central-easy" aria-label="中央簡單">簡單</button>
+              <button class="mode-choice" data-mode="central-hard" aria-label="中央困難">困難</button>
+            </div>
+          </div>
+          <div class="mode-group" role="group" aria-labelledby="mode-group-mixed">
+            <p id="mode-group-mixed" class="mode-group-title">綜合</p>
+            <div class="mode-group-buttons">
+              <button class="mode-choice" data-mode="mixed-easy" aria-label="綜合簡單">簡單</button>
+              <button class="mode-choice" data-mode="mixed-hard" aria-label="綜合困難">困難</button>
+            </div>
+          </div>
         </div>
         <p id="mode-status" role="status"></p>
       </div>
@@ -275,14 +295,16 @@
                     <h2 id="central-investigation-title"></h2>
                 </div>
                 <div class="central-sidebar-actions">
-                    <button id="central-refresh-btn" class="central-reroll" onclick="rerollCentralQuestions()">🔄 換一批 · 2 情報</button>
+                    <button id="central-refresh-btn" class="game-btn game-btn-secondary" onclick="rerollCentralQuestions()"><svg class="game-btn-icon" aria-hidden="true"><use href="#icon-refresh"></use></svg>換一批<span class="game-btn-tag">2 情報</span></button>
+                    <button type="button" class="game-btn game-btn-secondary clue-toggle" onclick="toggleClueView()" aria-pressed="false"></button>
                     <p id="central-refresh-status" role="status"></p>
                 </div>
                 <button class="file-close central-close" onclick="closeCentralInvestigation()">[ 關閉檔案 ]</button>
             </aside>
             <div class="central-document paper-texture">
-                <header class="central-document-header"><h3>調查問題</h3><span>每題 5 情報</span></header>
+                <header class="central-document-header"><h3 id="central-panel-title">調查問題</h3><span>每題 5 情報</span></header>
                 <div id="central-questions"></div>
+                <div id="central-clue-view" class="clue-view custom-scrollbar hidden"></div>
             </div>
         </section>
     </div>
@@ -297,7 +319,7 @@
                 class="w-full md:w-1/4 bg-gray-800 p-4 border-r border-gray-700 flex flex-col items-center pt-8 shrink-0">
                 <!-- Target Photo in Sidebar -->
                 <div
-                    class="relative w-full max-w-[11.25rem] aspect-[3/4] mb-6 rounded border border-gray-600 shadow-md overflow-hidden">
+                    class="investigation-photo relative w-full max-w-[11.25rem] aspect-[3/4] mb-6 rounded border border-gray-600 shadow-md overflow-hidden">
                     <img id="investigation-target-img" class="w-full h-full object-cover" src="" alt="Target Photo">
                 </div>
 
@@ -308,8 +330,9 @@
                     <button class="category-btn" data-cat="origin">詢問產生方式</button>
                 </div>
 
-                <button id="reroll-central-btn" class="central-reroll hidden" onclick="rerollCentralQuestions()">🔄 換一批 · 2 情報</button>
+                <button id="reroll-central-btn" class="game-btn game-btn-secondary hidden" onclick="rerollCentralQuestions()"><svg class="game-btn-icon" aria-hidden="true"><use href="#icon-refresh"></use></svg>換一批<span class="game-btn-tag">2 情報</span></button>
                 <p id="central-batch-status" class="hidden text-sm text-gray-400 mt-2" role="status"></p>
+                <button type="button" class="game-btn game-btn-secondary clue-toggle" onclick="toggleClueView()" aria-pressed="false"></button>
                 <button id="cancel-b-card-draw-btn"
                     class="file-close ordinary-close">
                     [ 關閉檔案 ]
@@ -340,6 +363,7 @@
                         &lt; 等待輸入：請點擊左側分類標籤以顯示可用問題 &gt;
                     </p>
                 </div>
+                <div id="ordinary-clue-view" class="clue-view custom-scrollbar hidden"></div>
             </div>
 
             <div class="absolute bottom-4 right-4 text-xs text-gray-400 font-mono">
@@ -348,7 +372,7 @@
 
             <!-- Top Secret Stamp (Relocated) -->
             <div
-                class="absolute bottom-20 right-8 pointer-events-none opacity-60 transform -rotate-12 mix-blend-multiply">
+                class="investigation-stamp absolute bottom-20 right-8 pointer-events-none opacity-60 transform -rotate-12 mix-blend-multiply">
                 <div class="text-red-700 font-black border-4 border-red-700 w-48 h-16 flex items-center justify-center text-3xl tracking-[0.2em] uppercase"
                     style="font-family: 'Courier New', monospace; mask-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');">
                     機密文件
@@ -567,8 +591,17 @@
         const $ = s => document.querySelector(s);
         const $$ = s => document.querySelectorAll(s);
 
-        const MODES = { central: { count: 6, label: '中央模式' }, easy: { count: 3, label: '簡單模式' }, hard: { count: 6, label: '困難模式' } };
-        let chosenMode = 'easy';
+        // scope：角色與題庫範圍；count：調查對象人數；candidateLimit：每位對象的候選職位數（null 為全部）
+        const MODES = {
+            'central-easy': { scope: 'central', count: 3, candidateLimit: 6, label: '中央簡單' },
+            'central-hard': { scope: 'central', count: 6, candidateLimit: null, label: '中央困難' },
+            'mixed-easy': { scope: 'mixed', count: 3, candidateLimit: 10, label: '綜合簡單' },
+            'mixed-hard': { scope: 'mixed', count: 6, candidateLimit: null, label: '綜合困難' }
+        };
+        // 舊版分享連結的 ?mode= 參數
+        const LEGACY_MODES = { central: 'central-hard', easy: 'mixed-easy', hard: 'mixed-hard' };
+        let chosenMode = 'mixed-easy';
+        const isCentralMode = () => MODES[chosenMode].scope === 'central';
         let starting = false;
         function shuffled(items) {
             const result = [...items];
@@ -579,7 +612,8 @@
             return result;
         }
         function candidateKeys(correct, all) {
-            return chosenMode === 'easy' ? shuffled([correct, ...shuffled(all.filter(k => k !== correct)).slice(0, 9)]) : [...all];
+            const { candidateLimit } = MODES[chosenMode];
+            return candidateLimit ? shuffled([correct, ...shuffled(all.filter(k => k !== correct)).slice(0, candidateLimit - 1)]) : [...all];
         }
         $$('.mode-choice').forEach(button => button.addEventListener('click', () => startMode(button.dataset.mode)));
         async function startMode(mode) {
@@ -608,7 +642,7 @@
             if (!Loaded) return;
 
             // 隨機選 5 個角色 (邏輯)
-            const allRoleKeys = Object.keys(ROLES_DATA).filter(k => chosenMode !== 'central' || ROLES_DATA[k].branch === 'central');
+            const allRoleKeys = Object.keys(ROLES_DATA).filter(k => !isCentralMode() || ROLES_DATA[k].branch === 'central');
             const shuffledRoles = shuffled(allRoleKeys);
             const targetCount = MODES[chosenMode].count;
             const selectedRoleKeys = shuffledRoles.slice(0, targetCount);
@@ -666,7 +700,7 @@
             $('#game-container').classList.remove('hidden');
             setTimeout(() => $('#game-container').style.opacity = '1', 100);
 
-            if (chosenMode === 'central') {
+            if (isCentralMode()) {
                 $('#setup-screen').classList.add('hidden');
                 return;
             }
@@ -846,8 +880,8 @@
                             </div>
                             
                             <div class="dossier-actions">
-                                <button class="dossier-action action-investigate" ${state.intel < CONFIG.COST_B_CARD ? 'disabled' : ''} onclick="event.stopPropagation(); openInvestigationPanel(${i})"><span aria-hidden="true">🔍</span>調查對象</button>
-                                <button class="dossier-action action-identify" onclick="event.stopPropagation(); openGuessModal(${i})"><span aria-hidden="true">🎯</span>指認身分</button>
+                                <button class="game-btn game-btn-secondary" ${state.intel < CONFIG.COST_B_CARD ? 'disabled' : ''} onclick="event.stopPropagation(); openInvestigationPanel(${i})"><svg class="game-btn-icon" aria-hidden="true"><use href="#icon-search"></use></svg>調查對象</button>
+                                <button class="game-btn game-btn-primary" onclick="event.stopPropagation(); openGuessModal(${i})"><svg class="game-btn-icon" aria-hidden="true"><use href="#icon-target"></use></svg>指認身分</button>
                             </div>
                         </div>
                     `;
@@ -1037,10 +1071,43 @@
 
         // --- B 卡流程 (重構：主動調查) ---
 
+        let clueViewOpen = false;
+        let savedPanelTitle = '';
+        function setClueView(open) {
+            const clues = state.dossiers[state.targetIndex].clues;
+            const central = isCentralMode();
+            const view = $(central ? '#central-clue-view' : '#ordinary-clue-view');
+            const list = $(central ? '#central-questions' : '#b-card-questions-list');
+            const title = $(central ? '#central-panel-title' : '#question-panel-title');
+            if (open && !clueViewOpen) savedPanelTitle = title.innerText;
+            if (open) {
+                view.innerHTML = clues.length ? clues.map(c => `<div class="clue-row"><span>${CARDS_DATA[c.cardId].text}</span><b class="${c.result ? 'is-yes' : 'is-no'}">${c.result ? '是' : '否'}</b></div>`).join('') : '<p class="clue-empty">尚無調查記錄</p>';
+                title.innerText = central ? '調查記錄' : '// 調查記錄';
+            } else if (clueViewOpen) {
+                title.innerText = savedPanelTitle;
+            }
+            clueViewOpen = open;
+            view.classList.toggle('hidden', !open);
+            list.classList.toggle('hidden', open);
+            $('#b-card-draw-modal').classList.toggle('showing-clues', open);
+            $$('.clue-toggle').forEach(button => {
+                button.innerHTML = open
+                    ? '<svg class="game-btn-icon" aria-hidden="true"><use href="#icon-back"></use></svg>返回題目'
+                    : `<svg class="game-btn-icon" aria-hidden="true"><use href="#icon-clues"></use></svg>查看調查記錄<span class="game-btn-tag">${clues.length}</span>`;
+                button.setAttribute('aria-pressed', String(open));
+            });
+        }
+        window.toggleClueView = () => {
+            setClueView(!clueViewOpen);
+            // 手機上綜合彈窗是直排，切換後捲到內容區
+            if (!isCentralMode() && window.innerWidth < 768) $('#question-panel-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
         window.openInvestigationPanel = function (index) {
             if (!state.dossiers[index] || state.dossiers[index].isSolved || state.gameStatus !== 'playing') return;
             state.targetIndex = index;
-            if (chosenMode === 'central') {
+            setClueView(false);
+            if (isCentralMode()) {
                 $('#central-investigation-title').textContent = state.rolesInPlay[index].characterName;
                 $('#central-target-img').src = state.rolesInPlay[index].characterImage;
                 $('#central-investigation-modal').classList.remove('hidden');
@@ -1068,11 +1135,11 @@
             judicial: '司法與憲法', examination_oversight: '考試與監察'
         };
         function renderInvestigationCategories() {
-            const central = chosenMode === 'central';
+            const central = isCentralMode();
             $('#investigation-categories').classList.toggle('hidden', central);
             $('#reroll-central-btn').classList.toggle('hidden', !central);
             $('#central-batch-status').classList.toggle('hidden', !central);
-            const categories = chosenMode === 'central' ? CENTRAL_CATEGORIES : {
+            const categories = isCentralMode() ? CENTRAL_CATEGORIES : {
                 age: '詢問年齡門檻', power: '詢問權力分立', level: '詢問政府層級', origin: '詢問產生方式'
             };
             $('#investigation-categories').innerHTML = Object.entries(categories).map(([key, label]) =>
@@ -1080,6 +1147,7 @@
             $$('.category-btn').forEach(btn => btn.addEventListener('click', () => {
                 $$('.category-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                setClueView(false);
                 renderQuestionsByCategory(btn.dataset.cat);
             }));
         }
@@ -1138,7 +1206,7 @@
         }
 
         window.rerollCentralQuestions = function () {
-            if (chosenMode !== 'central' || state.gameStatus !== 'playing' || state.intel < CONFIG.COST_REROLL) return;
+            if (!isCentralMode() || state.gameStatus !== 'playing' || state.intel < CONFIG.COST_REROLL) return;
             const index = state.targetIndex;
             const dossier = state.dossiers[index];
             if (!dossier || dossier.isSolved || !dossier.questionBatch || availableCentralQuestions(index).length <= dossier.questionBatch.length) return;
@@ -1147,6 +1215,7 @@
             if (next.length === dossier.questionBatch.length && next.every(k => dossier.questionBatch.includes(k))) return;
             state.intel -= CONFIG.COST_REROLL;
             dossier.questionBatch = next;
+            setClueView(false);
             updateHUD();
             renderDossiers();
             renderCentralQuestions();
@@ -1160,11 +1229,11 @@
         };
 
         function renderQuestionsByCategory(category) {
-            if (chosenMode === 'central') return;
+            if (isCentralMode()) return;
             const list = $('#b-card-questions-list');
             const questions = Object.entries(CARDS_DATA)
                 .filter(([k, v]) => v.type === 'B' && v.category === category &&
-                    (chosenMode === 'central' ? v.mode === 'central' : v.mode !== 'central'));
+                    (isCentralMode() ? v.mode === 'central' : v.mode !== 'central'));
 
             // 檢查該對象是否已經問過這些問題
             const askedCards = new Set(state.dossiers[state.targetIndex].clues.map(c => c.cardId));
@@ -1204,9 +1273,9 @@
             const dossier = state.dossiers[state.targetIndex];
             const selectedCard = CARDS_DATA[cardId];
             if (!dossier || dossier.isSolved || state.gameStatus !== 'playing' || !selectedCard ||
-                (chosenMode === 'central' ? selectedCard.mode !== 'central' : selectedCard.mode === 'central') ||
+                (isCentralMode() ? selectedCard.mode !== 'central' : selectedCard.mode === 'central') ||
                 dossier.clues.some(c => c.cardId === cardId)) return;
-            if (chosenMode === 'central' && !(dossier.questionBatch || []).includes(cardId)) return;
+            if (isCentralMode() && !(dossier.questionBatch || []).includes(cardId)) return;
             if (state.intel < CONFIG.COST_B_CARD) {
                 alert("點數不足");
                 return;
@@ -1220,10 +1289,10 @@
             // 紀錄
             state.dossiers[state.targetIndex].clues.push({ cardId: cardId, result: result });
             calculatePossibilities(state.targetIndex);
-            if (chosenMode === 'central') dossier.questionBatch = drawCentralQuestions(state.targetIndex, dossier.questionBatch);
+            if (isCentralMode()) dossier.questionBatch = drawCentralQuestions(state.targetIndex, dossier.questionBatch);
 
             $('#b-card-draw-modal').classList.add('hidden');
-            if (chosenMode === 'central') window.closeCentralInvestigation();
+            if (isCentralMode()) window.closeCentralInvestigation();
             updateHUD();
             renderDossiers();
         };
@@ -1368,8 +1437,9 @@
         // Auto-start on load
         window.addEventListener('load', async () => {
             // Wait a brief moment for fonts/styles to settle
-            const requestedMode = new URL(location.href).searchParams.get('mode');
-            if (MODES[requestedMode]) { startMode(requestedMode); }
+            const modeParam = new URL(location.href).searchParams.get('mode');
+            const requestedMode = LEGACY_MODES[modeParam] || modeParam;
+            if (Object.hasOwn(MODES, requestedMode)) { startMode(requestedMode); }
             else {
                 const preview = shuffled(CHARACTERS_DATA).slice(0, 5).map(filename => ({
                     characterName: filename.substring(0, filename.lastIndexOf('.')),
